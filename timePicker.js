@@ -86,6 +86,28 @@ define(function (require, exports) {
     };
 
     /**
+     * 绑定事件
+     */
+    TimePicker.prototype.bindEvent = function () {
+
+        var self = this;
+
+        this.timePicker
+            .on('touchstart', function (event) {
+                event.preventDefault();
+            })
+            .on('touchstart', 'ul[name="u"]', function(event) {
+                self.touchStart(event); 
+            }).
+            on('touchmove', 'ul[name="u"]', function(event) {
+                self.touchMove(event); 
+            })
+            .on('touchend', 'ul[name="u"]', function(event) {
+                self.touchEnd(event);
+            });
+    };
+
+    /**
      * 初始化
      */
     TimePicker.prototype.init = function () {
@@ -107,23 +129,12 @@ define(function (require, exports) {
         this.minuteWrapper.html(minuteStr);
 
         var self = this;
-        var ul = this.timePicker.find('ul[name="u"]');
-        ul
-            .on('touchstart', function(event) {
-                self.touchStart(event);
-            })
-            .on('touchmove', function(event) {
-                self.touchMove(event);
-            })
-            .on('touchend', function(event) {
-                self.touchEnd(event);
-            });
-      
-       
         var minute = '00';
        
         var minuteIndex = this.minute.indexOf(minute);
         var filterH = this.filterH;
+
+        self.bindEvent();
 
         self.dateWrapper
             .css('top', filterH + 'px')
@@ -164,7 +175,7 @@ define(function (require, exports) {
         e.preventDefault();
         e.stopPropagation();
         this.startY = e.touches[0].pageY;
-        this.startTop = $(event.currentTarget).css('top').replace('px', ''); 
+        this.startTop = $(e.currentTarget).css('top').replace('px', ''); 
     };
 
     /**
