@@ -3,7 +3,7 @@
  * @author XiaoBin Li(lixiaobin01@baidu.com)
  */
 
-define(function (require, exports) {
+define(function () {
 
     'use strict';
 
@@ -74,7 +74,6 @@ define(function (require, exports) {
         var now = new Date();
         var hourStr = '';
         var currentHour = now.getHours() + 1;
-        var currentMinute =  now.getMinutes();
         var hourOptions = [];
 
         if (!currentTime || currentTime == now.toLocaleDateString()) {
