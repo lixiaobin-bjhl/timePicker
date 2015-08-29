@@ -36,6 +36,13 @@ define(function (require, exports) {
     function parseDateString(dateStr) {
         return new Date(dateStr.replace(/-/g, '/'));
     }
+
+    /**
+     * 个位数补零
+     */
+    function fixTwo(n) {
+        return n < 10 ? '0' + n : n;
+    }
         
     /**
      * 填充日期
@@ -62,24 +69,27 @@ define(function (require, exports) {
     /**
      * 填充小时
      */
-    TimePicker.prototype.renderHour = function () {
+    TimePicker.prototype.renderHour = function (currentTime) {
+
         var now = new Date();
-      
         var hourStr = '';
-        // var currentHour = now.getHours();
-        // var currentMinute =  now.getMinutes();
-        // var index = this.hour.indexOf('' + currentHour);
+        var currentHour = now.getHours() + 1;
+        var currentMinute =  now.getMinutes();
+        var hourOptions = [];
 
-        // if (currentMinute > 30) {
-        //     index ++;
-        // }
+        if (!currentTime || currentTime == now.toLocaleDateString()) {
+            var index = this.hour.indexOf('' + fixTwo(currentHour));
+            hourOptions = this.hour.slice(index);
+           
+        } else {
+            hourOptions = this.hour;
+        }
 
-        var hourOptions = this.hour;
         for (var i = 0, l = hourOptions.length; i < l; i++) {
             hourStr += '<li>' + hourOptions[i] + '</li>';
         }
         this.hourWrapper.html(hourStr);
-        var hourIndex = hourOptions.indexOf('12');
+        var hourIndex = hourOptions.indexOf('' + fixTwo(currentHour));
         this.hourWrapper
             .css('top', -(hourIndex -1) * this.filterH + 'px')
             .find('li').eq(hourIndex).addClass('light');
@@ -200,8 +210,8 @@ define(function (require, exports) {
     TimePicker.prototype.touchEnd = function (e) {
         e.preventDefault();
         e.stopPropagation();
+        var ul = $(e.currentTarget);
         if (this.startY !== 0) {
-            var ul = $(e.currentTarget);
             var top = ul.css('top').replace('px', '');
             var yu = top % this.filterH;
             var zheng = parseInt(top / this.filterH, 10);
@@ -211,17 +221,11 @@ define(function (require, exports) {
                 ul
                 .css('top', this.filterH + 'px')
                 .find('li').eq(0).addClass('light');
-                return;
-            }
-
-            if (Math.abs(zheng) >= length -2) {
+            } else if (Math.abs(zheng) >= length -2) {
                 ul
                 .css('top', -(length -2) * this.filterH + 'px')
                 .find('li').eq(length-1).addClass('light');
-                return;
-            }
-
-            if (yu <= -(this.filterH / 2)) {
+            } else if (yu <= -(this.filterH / 2)) {
                 ul
                 .css('top', (zheng - 1) * this.filterH + 'px')
                 .find('li').eq(Math.abs(zheng) + 2).addClass('light');
@@ -233,6 +237,10 @@ define(function (require, exports) {
         }
         this.startY = 0;
         this.startTop = 0;
+
+        if (ul.hasClass('date')) {
+            this.renderHour(this.dateWrapper.find('li.light').data('value'));
+        }
     };
 
     /**
